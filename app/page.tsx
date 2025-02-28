@@ -485,7 +485,7 @@ export default function Home() {
             )}
 
             <Button
-              className="w-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+              className="w-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleAccess}
               disabled={selectedFiles.length === 0}
             >
