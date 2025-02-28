@@ -485,7 +485,7 @@ export default function Home() {
             )}
 
             <Button
-              className="w-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
               onClick={handleAccess}
               disabled={selectedFiles.length === 0}
             >
@@ -504,7 +504,7 @@ export default function Home() {
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
                 <Clock className="h-8 w-8 text-yellow-600" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">photo take 24 hours to develop</h1>
+              <h1 className="text-2xl font-bold text-gray-900">photo collages take 24 hours to develop</h1>
               <h2 className="text-xl font-semibold text-gray-800">check back in</h2>
             </div>
 
