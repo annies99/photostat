@@ -42,14 +42,50 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { hours, minutes, seconds } = useCountdown(24 * 60 * 60)
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  // Calculate the countdown time
+  const calculateCountdown = () => {
+    const targetDate = new Date("March 2, 2025 10:00:00 GMT-0500") // Eastern Time
+    const now = new Date()
+    const timeDifference = targetDate.getTime() - now.getTime()
+    return timeDifference > 0 ? Math.floor(timeDifference / 1000) : 0 // Convert to seconds
+  }
+
+  const [countdown, setCountdown] = useState(calculateCountdown())
+
+  useEffect(() => {
+    // Check if the user has visited before
+    const hasVisited = localStorage.getItem("hasVisited")
+    if (hasVisited) {
+      setStage("countdown")
+    } else {
+      localStorage.setItem("hasVisited", "true")
+    }
+
+    // Countdown timer
+    const timer = setInterval(() => {
+      setCountdown((prevCountdown) => {
+        const newCountdown = prevCountdown > 0 ? prevCountdown - 1 : 0
+        return newCountdown
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  // Function to format countdown as hh:mm:ss
+  const formatCountdown = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600).toString().padStart(2, "0")
+    const minutes = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0")
+    const secs = (seconds % 60).toString().padStart(2, "0")
+    return `${hours}:${minutes}:${secs}`
+  }
+
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files)
-      setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles])
-
-      // Generate previews for the new files
       const newPreviews = newFiles.map((file) => URL.createObjectURL(file))
-      setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews])
+      setSelectedFiles(newFiles)
+      setImagePreviews(newPreviews)
     }
   }, [])
 
@@ -92,6 +128,8 @@ export default function Home() {
           })
 
           if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text()
+            console.error("Upload failed:", errorText)
             throw new Error("Failed to upload file")
           }
 
@@ -110,6 +148,12 @@ export default function Home() {
     } catch (error) {
       console.error("Error uploading images:", error)
     }
+  }
+
+  const handleUploadMorePhotos = () => {
+    setSelectedFiles([])
+    setImagePreviews([])
+    setStage("upload")
   }
 
   const isValidPhoneNumber = (phone: string) => {
@@ -165,11 +209,6 @@ export default function Home() {
       setPhoneError("Failed to save your phone number. Please try again.")
     }
   }
-
-  useEffect(() => {
-    const timer = setTimeout(() => {}, 0)
-    return () => clearTimeout(timer)
-  }, [])
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-yellow-50 p-4 overflow-hidden">
@@ -294,7 +333,7 @@ export default function Home() {
           <Card className="overflow-hidden border-2 border-yellow-400 bg-white p-6 shadow-lg">
             <div className="mb-6 space-y-2 text-center">
               <h1 className="text-2xl font-bold text-gray-900">Unlock your memories</h1>
-              <h2 className="text-xl font-semibold text-gray-800">See how good you looked last night :)</h2>
+              <h2 className="text-xl font-semibold text-gray-800">See how cute our pictures turned out :)</h2>
               <div className="mt-4 flex items-center justify-center space-x-2 rounded-full bg-red-100 px-4 py-2 text-red-600">
                 <Camera className="h-5 w-5" />
                 <p className="font-medium">Upload at least 1 picture to access</p>
@@ -312,7 +351,7 @@ export default function Home() {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept="image/*"
+                accept="image/*,.heic"
                 multiple
                 className="hidden"
               />
@@ -368,8 +407,7 @@ export default function Home() {
 
             <div className="mb-8 text-center">
               <div className="text-5xl font-bold text-red-600">
-                {hours.toString().padStart(2, "0")}:{minutes.toString().padStart(2, "0")}:
-                {seconds.toString().padStart(2, "0")}
+                {formatCountdown(countdown)}
               </div>
             </div>
 
@@ -438,7 +476,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 className="w-full border-yellow-400 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700"
-                onClick={() => setStage("upload")}
+                onClick={handleUploadMorePhotos}
               >
                 Upload More Photos
               </Button>

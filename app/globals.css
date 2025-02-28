@@ -58,6 +58,30 @@
   }
 }
 
+/* Default styles for desktop (vertical scrolling) */
+.container {
+  display: block;
+  overflow-y: auto;
+  /* Other styles for vertical layout */
+}
+
+/* Styles for mobile (horizontal scrolling) */
+@media (max-width: 768px) {
+  .container {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+  }
+
+  .item {
+    flex: 0 0 auto; /* Prevent items from shrinking */
+    width: 100%; /* Adjust width as needed */
+    /* Other styles for horizontal layout */
+  }
+}
+
 @keyframes scroll {
   0% {
     transform: translateY(0);
