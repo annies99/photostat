@@ -82,12 +82,14 @@ export default function Home() {
 
   const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files)
-      const newPreviews = newFiles.map((file) => URL.createObjectURL(file))
-      setSelectedFiles(newFiles)
-      setImagePreviews(newPreviews)
+      const newFiles = Array.from(e.target.files);
+      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+      console.log("New files selected:", newFiles);
+      console.log("New previews generated:", newPreviews);
+      setSelectedFiles(newFiles);
+      setImagePreviews(newPreviews);
     }
-  }, [])
+  }, []);
 
   const handleRemovePhoto = useCallback((index: number) => {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
@@ -99,56 +101,67 @@ export default function Home() {
   }
 
   const handleAccess = async () => {
-    if (selectedFiles.length === 0) return
+    if (selectedFiles.length === 0) return;
 
     try {
-      console.log("Uploading files:", selectedFiles.map((file) => file.name))
+      console.log("Uploading files:", selectedFiles.map((file) => file.name));
 
       for (const file of selectedFiles) {
         try {
-          console.log(`Preparing to upload file: ${file.name}`)
+          console.log(`Preparing to upload file: ${file.name}`);
           const response = await fetch("/api/uploadImage", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ filename: file.name, contentType: file.type }),
-          })
+          });
 
           if (!response.ok) {
-            const errorData = await response.json()
-            throw new Error(errorData.error || "Failed to get signed URL")
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to get signed URL");
           }
 
-          const { uploadUrl, key } = await response.json()
-          console.log(`Received signed URL for file: ${file.name}`)
+          const { uploadUrl, key } = await response.json();
+          console.log(`Received signed URL for file: ${file.name}`);
 
           const uploadResponse = await fetch(uploadUrl, {
             method: "PUT",
             body: file,
             headers: { "Content-Type": file.type },
-          })
+          });
 
           if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text()
-            console.error("Upload failed:", errorText)
-            throw new Error("Failed to upload file")
+            const errorText = await uploadResponse.text();
+            console.error("Upload failed:", errorText);
+            throw new Error("Failed to upload file");
           }
 
-          console.log(`Successfully uploaded file: ${file.name} to S3`)
+          console.log(`Successfully uploaded file: ${file.name} to S3`);
 
-          const imageUrl = `https://${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${key}`
-          setImagePreviews((prevPreviews) => [...prevPreviews, imageUrl])
-          setUploadError(null)
+          const imageUrl = `https://${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${key}`;
+          setImagePreviews((prevPreviews) => {
+            if (!prevPreviews.includes(imageUrl)) {
+              console.log(`Adding image URL to previews: ${imageUrl}`);
+              return [...prevPreviews, imageUrl];
+            } else {
+              console.log(`Duplicate image URL detected, not adding: ${imageUrl}`);
+            }
+            return prevPreviews;
+          });
+          setUploadError(null);
         } catch (error) {
-          console.error("Error uploading file:", error)
-          setUploadError(error instanceof Error ? error.message : "An unknown error occurred")
+          console.error("Error uploading file:", error);
+          setUploadError(error instanceof Error ? error.message : "An unknown error occurred");
         }
       }
 
-      // Set the flag indicating the user has completed the upload process
-      localStorage.setItem("hasUploaded", "true")
-      setStage("countdown")
+      console.log("Clearing selected files after successful upload");
+      setSelectedFiles([]);
+      // Do not clear imagePreviews here to retain the uploaded images
+
+      localStorage.setItem("hasUploaded", "true");
+      setStage("countdown");
     } catch (error) {
-      console.error("Error uploading images:", error)
+      console.error("Error uploading images:", error);
     }
   }
 
@@ -213,7 +226,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center bg-yellow-50 p-4 overflow-hidden">
+    <main className="relative flex min-h-screen flex-col items-center justify-center bg-black p-4 overflow-hidden">
       <style jsx>{`
         @keyframes scroll-horizontal {
           0% {
@@ -424,8 +437,8 @@ export default function Home() {
       <div className="w-full max-w-md z-10">
         <div className="mb-8 flex justify-center">
           <div className="relative h-16 w-48">
-            <div className="absolute inset-0 rounded-md bg-yellow-400 p-2">
-              <div className="flex h-full items-center justify-center rounded bg-red-600 px-4">
+            <div className="absolute inset-0 rounded-md p-2">
+              <div className="flex h-full items-center justify-center rounded bg-gradient-to-r from-blue-900 via-blue-600 to-blue-300 px-4">
                 <h1 className="text-2xl font-bold text-white">photostat</h1>
               </div>
             </div>
@@ -433,21 +446,21 @@ export default function Home() {
         </div>
 
         {stage === "upload" ? (
-          <Card className="overflow-hidden border-2 border-yellow-400 bg-white p-6 shadow-lg">
+          <Card className="overflow-hidden border-2 border-blue-400 bg-white p-6 shadow-lg">
             <div className="mb-6 space-y-2 text-center">
               <h1 className="text-2xl font-bold text-gray-900">unlock your memories</h1>
-              <h2 className="text-xl font-semibold text-gray-800">see how cute our pictures turned out :)</h2>
-              <div className="mt-4 flex items-center justify-center space-x-2 rounded-full bg-red-100 px-4 py-2 text-red-600">
+              <h2 className="text-xl font-semibold text-gray-800">see how cute our pics turned out :)</h2>
+              <div className="mt-4 flex items-center justify-center space-x-2 rounded-full bg-blue-100 px-4 py-2 text-blue-600">
                 <Camera className="h-5 w-5" />
-                <p className="font-medium">upload at least 1 picture to access</p>
+                <p className="font-medium">upload at least 1 party picture to access</p>
               </div>
             </div>
 
             <div
-              className="group mb-6 flex h-48 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-yellow-400 hover:bg-yellow-50"
+              className="group mb-6 flex h-48 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-blue-400 hover:bg-bkue-50"
               onClick={handleUploadClick}
             >
-              <Upload className="mb-2 h-10 w-10 text-gray-400 group-hover:text-yellow-500" />
+              <Upload className="mb-2 h-10 w-10 text-gray-400 group-hover:text-blue-500" />
               <p className="text-sm text-gray-500 group-hover:text-gray-700">click to upload from your camera roll</p>
               <p className="mt-1 text-xs text-gray-400">JPG, PNG or GIF (max. 10MB each)</p>
               <input
@@ -460,7 +473,7 @@ export default function Home() {
               />
             </div>
 
-            {uploadError && <div className="mb-4 text-center text-red-500">Error uploading file: {uploadError}</div>}
+            {uploadError && <div className="mb-4 text-center text-blue-500">Error uploading file: {uploadError}</div>}
 
             {imagePreviews.length > 0 && (
               <div className="mb-6 grid grid-cols-3 gap-4">
@@ -474,7 +487,7 @@ export default function Home() {
                       className="rounded-md object-cover w-full h-24"
                     />
                     <button
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                      className="absolute -top-2 -right-2 bg-blue-500 text-white rounded-full p-1"
                       onClick={() => handleRemovePhoto(index)}
                     >
                       <X size={16} />
@@ -485,7 +498,7 @@ export default function Home() {
             )}
 
             <Button
-              className="w-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleAccess}
               disabled={selectedFiles.length === 0}
             >
@@ -493,23 +506,23 @@ export default function Home() {
             </Button>
 
             <div className="mt-4 flex items-center justify-center">
-              <div className="h-1 w-full flex-1 bg-yellow-200"></div>
-              <div className="mx-2 h-4 w-4 rounded-full bg-yellow-400"></div>
-              <div className="h-1 w-full flex-1 bg-yellow-200"></div>
+              <div className="h-1 w-full flex-1 bg-blue-200"></div>
+              <div className="mx-2 h-4 w-4 rounded-full bg-blue-400"></div>
+              <div className="h-1 w-full flex-1 bg-blue-200"></div>
             </div>
           </Card>
         ) : (
-          <Card className="overflow-hidden border-2 border-yellow-400 bg-white p-6 shadow-lg">
+          <Card className="overflow-hidden border-2 border-blue-400 bg-white p-6 shadow-lg">
             <div className="mb-6 space-y-4 text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
-                <Clock className="h-8 w-8 text-yellow-600" />
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                <Clock className="h-8 w-8 text-blue-600" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">photo collages take 24 hours to develop</h1>
+              <h1 className="text-2xl font-bold text-gray-900">photos take 24 hours to develop</h1>
               <h2 className="text-xl font-semibold text-gray-800">check back in</h2>
             </div>
 
             <div className="mb-8 text-center">
-              <div className="text-5xl font-bold text-red-600">
+              <div className="text-5xl font-bold text-blue-600">
                 {formatCountdown(countdown)}
               </div>
             </div>
@@ -529,7 +542,7 @@ export default function Home() {
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <Button
-                    className="w-full bg-red-600 text-white hover:bg-red-700 text-lg"
+                    className="w-full bg-blue-600 text-white hover:bg-blue-700 text-lg"
                     onClick={() => {
                       console.log("Get a text notification button clicked")
                       setIsModalOpen(true)
@@ -539,7 +552,7 @@ export default function Home() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent
-                  className="sm:max-w-[425px]"
+                  className="sm:max-w-[425px] bg-white border-2 border-blue-600"
                   onOpenAutoFocus={(e) => {
                     e.preventDefault()
                     console.log("Modal opened")
@@ -566,11 +579,11 @@ export default function Home() {
                             setPhoneError("")
                           }}
                           required
-                          className={phoneError ? "border-red-500" : ""}
+                          className={`${phoneError ? "border-red-500" : "border-blue-600"} border-2`}
                         />
                         {phoneError && <p className="text-red-500 text-sm mt-1">{phoneError}</p>}
                       </div>
-                      <Button type="submit" className="w-full">
+                      <Button type="submit" className="w-full bg-blue-600 text-white hover:bg-blue-700">
                         Submit
                       </Button>
                     </form>
@@ -580,7 +593,7 @@ export default function Home() {
 
               <Button
                 variant="outline"
-                className="w-full border-yellow-400 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700 text-lg"
+                className="w-full border-blue-400 text-blue-600 hover:bg-blue-50 hover:text-blue-700 text-lg"
                 onClick={handleUploadMorePhotos}
               >
                 upload more
