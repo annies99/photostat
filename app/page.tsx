@@ -504,7 +504,7 @@ export default function Home() {
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
                 <Clock className="h-8 w-8 text-yellow-600" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">photos take 24 hours to develop</h1>
+              <h1 className="text-2xl font-bold text-gray-900">photo take 24 hours to develop</h1>
               <h2 className="text-xl font-semibold text-gray-800">check back in</h2>
             </div>
 
@@ -515,6 +515,7 @@ export default function Home() {
             </div>
 
             <div className="space-y-4">
+              {/*
               <div className="flex items-center space-x-2 rounded-md bg-yellow-100 p-3 text-sm text-yellow-800">
                 <div className="flex-shrink-0">
                   <Camera className="h-5 w-5" />
@@ -523,11 +524,12 @@ export default function Home() {
                   <p>your photos are being processed in our digital darkroom.</p>
                 </div>
               </div>
+              */}
 
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <Button
-                    className="w-full bg-red-600 text-white hover:bg-red-700"
+                    className="w-full bg-red-600 text-white hover:bg-red-700 text-lg"
                     onClick={() => {
                       console.log("Get a text notification button clicked")
                       setIsModalOpen(true)
@@ -578,10 +580,10 @@ export default function Home() {
 
               <Button
                 variant="outline"
-                className="w-full border-yellow-400 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700"
+                className="w-full border-yellow-400 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700 text-lg"
                 onClick={handleUploadMorePhotos}
               >
-                upload more photos
+                upload more
               </Button>
             </div>
 
