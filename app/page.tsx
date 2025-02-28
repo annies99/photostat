@@ -53,12 +53,12 @@ export default function Home() {
   const [countdown, setCountdown] = useState(calculateCountdown())
 
   useEffect(() => {
-    // Check if the user has visited before
-    const hasVisited = localStorage.getItem("hasVisited")
-    if (hasVisited) {
+    // Check if the user has completed the upload process
+    const hasUploaded = localStorage.getItem("hasUploaded")
+    if (hasUploaded) {
       setStage("countdown")
     } else {
-      localStorage.setItem("hasVisited", "true")
+      setStage("upload")
     }
 
     // Countdown timer
@@ -144,6 +144,8 @@ export default function Home() {
         }
       }
 
+      // Set the flag indicating the user has completed the upload process
+      localStorage.setItem("hasUploaded", "true")
       setStage("countdown")
     } catch (error) {
       console.error("Error uploading images:", error)
@@ -212,6 +214,107 @@ export default function Home() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-yellow-50 p-4 overflow-hidden">
+      <style jsx>{`
+        @keyframes scroll-horizontal {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+
+        .horizontal-scroll {
+          display: flex;
+          overflow-x: hidden;
+          white-space: nowrap;
+          animation: scroll-horizontal 20s linear infinite;
+        }
+
+        .horizontal-scroll img {
+          height: 100px;
+          margin-right: 8px;
+          border-radius: 8px;
+        }
+
+        @media (min-width: 769px) {
+          .horizontal-scroll {
+            animation: none;
+          }
+        }
+      `}</style>
+
+      {/* Horizontal scrolling images for mobile */}
+      <div className="w-full overflow-x-auto whitespace-nowrap mb-4 md:hidden">
+        <div className="horizontal-scroll space-x-4 px-4">
+          <div className="relative h-32 w-32 flex-shrink-0">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/6ff625bf46a27390bd917f37cc8b55ba.jpg-Z3GpPwh4ya5FhaCkQPvYpDna4jjubP.jpeg"
+              alt="Vintage collage"
+              fill
+              className="object-cover rounded-lg shadow-lg"
+            />
+          </div>
+          <div className="relative h-32 w-32 flex-shrink-0">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pile-of-developed-film-prints-from-a-disposable-camera.jpg-0S3Sn4NyxKdgJaWYUkKIwNFwxOaI4m.jpeg"
+              alt="Film prints"
+              fill
+              className="object-cover rounded-lg shadow-lg"
+            />
+          </div>
+          <div className="relative h-32 w-32 flex-shrink-0">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-28%20at%2010.42.24%E2%80%AFAM-LGBYEFoO5PEvW4UBjXt431Ut4Q7f7R.png"
+              alt="Film strip"
+              fill
+              className="object-cover rounded-lg shadow-lg"
+            />
+          </div>
+          {/* Duplicate images for seamless scrolling */}
+          <div className="relative h-32 w-32 flex-shrink-0">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/6ff625bf46a27390bd917f37cc8b55ba.jpg-Z3GpPwh4ya5FhaCkQPvYpDna4jjubP.jpeg"
+              alt="Vintage collage"
+              fill
+              className="object-cover rounded-lg shadow-lg"
+            />
+          </div>
+          <div className="relative h-32 w-32 flex-shrink-0">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pile-of-developed-film-prints-from-a-disposable-camera.jpg-0S3Sn4NyxKdgJaWYUkKIwNFwxOaI4m.jpeg"
+              alt="Film prints"
+              fill
+              className="object-cover rounded-lg shadow-lg"
+            />
+          </div>
+          <div className="relative h-32 w-32 flex-shrink-0">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-28%20at%2010.42.24%E2%80%AFAM-LGBYEFoO5PEvW4UBjXt431Ut4Q7f7R.png"
+              alt="Film strip"
+              fill
+              className="object-cover rounded-lg shadow-lg"
+            />
+          </div>
+          <div className="relative h-32 w-32 flex-shrink-0">
+            <Image
+              src="https://marketplace.canva.com/EAFEHuMtAVM/1/0/1600w/canva-black-analog-film-funeral-video-collage-8Plra2Qs8Eg.jpg"
+              alt="Black Analog Film Funeral Video Collage"
+              fill
+              className="object-cover rounded-lg shadow-lg"
+            />
+          </div>
+          <div className="relative h-32 w-32 flex-shrink-0">
+            <Image
+              src="https://marketplace.canva.com/EAE-P4EpP1A/1/0/1600w/canva-cream-simple-minimalist-photo-film-photo-collage-14QW9D4FpSw.jpg"
+              alt="Cream Simple Minimalist Photo Film Photo Collage"
+              fill
+              className="object-cover rounded-lg shadow-lg"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="fixed left-4 top-0 bottom-0 w-48 flex flex-col gap-4 py-4 overflow-hidden pointer-events-none hidden md:flex">
         <div className="animate-scroll flex flex-col gap-4">
           <div className="relative h-64 w-full">
@@ -323,7 +426,7 @@ export default function Home() {
           <div className="relative h-16 w-48">
             <div className="absolute inset-0 rounded-md bg-yellow-400 p-2">
               <div className="flex h-full items-center justify-center rounded bg-red-600 px-4">
-                <h1 className="text-2xl font-bold text-white">PHOTOSTAT</h1>
+                <h1 className="text-2xl font-bold text-white">photostat</h1>
               </div>
             </div>
           </div>
@@ -332,11 +435,11 @@ export default function Home() {
         {stage === "upload" ? (
           <Card className="overflow-hidden border-2 border-yellow-400 bg-white p-6 shadow-lg">
             <div className="mb-6 space-y-2 text-center">
-              <h1 className="text-2xl font-bold text-gray-900">Unlock your memories</h1>
-              <h2 className="text-xl font-semibold text-gray-800">See how cute our pictures turned out :)</h2>
+              <h1 className="text-2xl font-bold text-gray-900">unlock your memories</h1>
+              <h2 className="text-xl font-semibold text-gray-800">see how cute our pictures turned out :)</h2>
               <div className="mt-4 flex items-center justify-center space-x-2 rounded-full bg-red-100 px-4 py-2 text-red-600">
                 <Camera className="h-5 w-5" />
-                <p className="font-medium">Upload at least 1 picture to access</p>
+                <p className="font-medium">upload at least 1 picture to access</p>
               </div>
             </div>
 
@@ -345,7 +448,7 @@ export default function Home() {
               onClick={handleUploadClick}
             >
               <Upload className="mb-2 h-10 w-10 text-gray-400 group-hover:text-yellow-500" />
-              <p className="text-sm text-gray-500 group-hover:text-gray-700">Click to upload from your camera roll</p>
+              <p className="text-sm text-gray-500 group-hover:text-gray-700">click to upload from your camera roll</p>
               <p className="mt-1 text-xs text-gray-400">JPG, PNG or GIF (max. 10MB each)</p>
               <input
                 type="file"
@@ -386,7 +489,7 @@ export default function Home() {
               onClick={handleAccess}
               disabled={selectedFiles.length === 0}
             >
-              Access
+              access
             </Button>
 
             <div className="mt-4 flex items-center justify-center">
@@ -401,8 +504,8 @@ export default function Home() {
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
                 <Clock className="h-8 w-8 text-yellow-600" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">Photos take 24 hours to develop</h1>
-              <h2 className="text-xl font-semibold text-gray-800">Check back in</h2>
+              <h1 className="text-2xl font-bold text-gray-900">photos take 24 hours to develop</h1>
+              <h2 className="text-xl font-semibold text-gray-800">check back in</h2>
             </div>
 
             <div className="mb-8 text-center">
@@ -417,7 +520,7 @@ export default function Home() {
                   <Camera className="h-5 w-5" />
                 </div>
                 <div>
-                  <p>Your photos are being processed in our digital darkroom.</p>
+                  <p>your photos are being processed in our digital darkroom.</p>
                 </div>
               </div>
 
@@ -430,7 +533,7 @@ export default function Home() {
                       setIsModalOpen(true)
                     }}
                   >
-                    <Bell className="mr-2 h-4 w-4" /> Get a text notification
+                    <Bell className="mr-2 h-4 w-4" /> get a text notification
                   </Button>
                 </DialogTrigger>
                 <DialogContent
@@ -478,7 +581,7 @@ export default function Home() {
                 className="w-full border-yellow-400 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700"
                 onClick={handleUploadMorePhotos}
               >
-                Upload More Photos
+                upload more photos
               </Button>
             </div>
 
@@ -508,4 +611,3 @@ export default function Home() {
     </main>
   )
 }
-
